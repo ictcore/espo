@@ -1,0 +1,11 @@
+{
+   "labels":{
+      "Create ICTExtention":"Create Campaign",
+       "record":"Select File according to type you select above"
+
+   },
+   "fields":{
+      "group":"Group",
+      "campaign":"Campaign",
+   },
+}

@@ -1,0 +1,16 @@
+{
+    "fields": {
+        "apiKey": {
+            "type": "text",
+            "required": true
+        },
+        "links": {
+            "type": "varchar",
+            "maxLength": 255,
+            "required": true
+        }
+    },
+    "allowUserAccounts": false,
+    "view": "views/admin/integrations/google-maps",
+    "authMethod": "IctBroadcastconfig"
+}

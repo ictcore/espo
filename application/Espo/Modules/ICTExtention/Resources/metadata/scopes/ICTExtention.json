@@ -1,0 +1,10 @@
+{
+   "entity" : false,
+   "layouts" : false,
+   "acl" :false,
+   "customizable":false,
+   "tab" :false,
+   "stream" : false,
+    "module": "ICTExtention",
+    "importable": false
+}

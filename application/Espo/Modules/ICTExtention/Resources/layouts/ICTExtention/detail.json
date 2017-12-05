@@ -1,0 +1,18 @@
+[
+{"label":"ICTBroadcast  if select voice choose wav file and select fax choose pdf","rows":[
+
+[{"name":"type"}],[{"name":"group"}],
+[{"name":"campaign"}],[{"name":"contactcsv", "fullWidth": true}]]},
+
+
+
+{
+        "label":"Select File according to type you select above",
+        "rows": [
+
+
+[{"name":"record", "fullWidth": true}]]
+
+
+}
+]
