@@ -1,11 +1,16 @@
 {
    "labels":{
-      "Create ICTExtention":"Create Campaign",
-       "record":"Select File according to type you select above"
-
+      "Create ICTExtention":"Create Campaign"
    },
    "fields":{
-      "group":"Group",
-      "campaign":"Campaign",
+      "group":"New Group Name",
+      "campaign":"New Campaign Name",
+      "type":"Select Type",
+      "record":"Choose File",
+      "contactcsv":"Contact Csv"
+     
    },
+    "links":{
+     
+   }
 }
