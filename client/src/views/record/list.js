@@ -423,10 +423,14 @@ Espo.define('views/record/list', 'view', function (Dep) {
                        // alert(JSON.stringify(data));
                         if ('id' in data) {
                             var g_id = JSON.stringify(data.id.group_id);
+                            var ipaddress = JSON.stringify(data.id.ipaddre);
                             var c_name = JSON.stringify(data.id.campaign_type);
                              var  element= c_name.replace (/"/g,'');
-               
-                     var win=window.open("http://202.142.186.26/campaign.php?action=add&type="+element+"&contact_group_id="+g_id, '_blank');
+                             var address = ipaddress.replace (/"/g,'');
+
+                    var win=window.open(address+"/campaign.php?action=add&type="+element+"&contact_group_id="+g_id, '_blank');
+
+                    // var win=window.open("http://202.142.186.26/campaign.php?action=add&type="+element+"&contact_group_id="+g_id, '_blank');
                       win.focus();
                               
                            // window.location = this.getBasePath() + '?entryPoint=download&id=' + data.id;
@@ -1399,4 +1403,3 @@ massActionIctbroadcast: function () {
         }
     });
 });
-

@@ -1447,6 +1447,181 @@ class Record extends \Espo\Core\Services\Base
         throw new Error();
     }
 
+
+
+
+
+public function ictbroadcast(array $params)
+{
+    if (array_key_exists('collection', $params)) {
+        $collection = $params['collection'];
+    } else {
+            $selectManager = $this->getSelectManager($this->getEntityType());
+            if (array_key_exists('ids', $params)) {
+                $ids = $params['ids'];
+                $where = array(
+                    array(
+                        'type' => 'in',
+                        'field' => 'id',
+                        'value' => $ids
+                    )
+                );
+                $selectParams = $selectManager->getSelectParams(array('where' => $where), true, true);
+            } else if (array_key_exists('where', $params)) {
+                $where = $params['where'];
+
+                $p = array();
+                $p['where'] = $where;
+                if (!empty($params['selectData']) && is_array($params['selectData'])) {
+                    foreach ($params['selectData'] as $k => $v) {
+                        $p[$k] = $v;
+                    }
+                }
+                $selectParams = $this->getSelectParams($p);
+            } else {
+                throw new BadRequest();
+            }
+
+            $orderBy = $this->getMetadata()->get(['entityDefs', $this->getEntityType(), 'collection', 'sortBy']);
+            $desc = !$this->getMetadata()->get(['entityDefs', $this->getEntityType(), 'collection', 'asc']);
+            if ($orderBy) {
+                $selectManager->applyOrder($orderBy, $desc, $selectParams);
+            }
+
+        $collection = $this->getRepository()->find($selectParams);
+    }
+          $entityManager = $this->getEntityManager();
+    
+            $account  = $entityManager->getEntity('Integration', 'IctBroadcastconfig');
+     //  $data = $this->get('data');
+      $settings = $account->get('data');
+      $token    = $settings->apiKey;
+      $ipadrs   = $settings->links;
+
+
+
+        $json_data = array();
+
+        $lnk = parse_url($ipadrs);
+     
+        $json_data['ipaddre'] =  $lnk['scheme'].'://'.$lnk['host'];
+        //Creat Group in IctBroadcast
+        $arguments = array('contact_group'=> array('name' => $params['format'][0]));
+        $result  = $this->broadcast_api('Contact_Group_Create', $arguments);
+        if($result[0] == true) {
+          $contact_group_id = $result[1];
+          // print_r($contact_id);
+          $json_data['group_id'] = $contact_group_id;
+          $json_data['campaign_type'] = $params['format'][1];
+
+        } else {
+          $errmsg = $result[1];
+          //print_r($errmsg);
+          return $errmsg;
+        }
+
+        $arr = array();
+
+        $collection->toArray();
+
+        $attributeListToSkip = [
+            'deleted'
+        ];
+
+        foreach ($this->exportSkipAttributeList as $attribute) {
+            $attributeListToSkip[] = $attribute;
+        }
+
+        foreach ($this->getAcl()->getScopeForbiddenAttributeList($this->getEntityType(), 'read') as $attribute) {
+            $attributeListToSkip[] = $attribute;
+        }
+
+        $attributeList = null;
+        if (array_key_exists('attributeList', $params)) {
+            $attributeList = [];
+            $seed = $this->getEntityManager()->getEntity($this->getEntityType());
+            foreach ($params['attributeList'] as $attribute) {
+                if (in_array($attribute, $attributeListToSkip)) {
+                    continue;
+                }
+                if ($this->checkAttributeIsAllowedForExport($seed, $attribute)) {
+                    $attributeList[] = $attribute;
+                }
+            }
+        }
+
+        if (!array_key_exists('fieldList', $params)) {
+            $fieldDefs = $this->getMetadata()->get(['entityDefs', $this->entityType, 'fields'], []);
+            $fieldList = array_keys($fieldDefs);
+            array_unshift($fieldList, 'id');
+        } else {
+            $fieldList = $params['fieldList'];
+        }
+
+        if (is_null($attributeList)) {
+            $attributeList = [];
+            $seed = $this->getEntityManager()->getEntity($this->entityType);
+            foreach ($seed->getAttributes() as $attribute => $defs) {
+                if (in_array($attribute, $attributeListToSkip)) {
+                    continue;
+                }
+                if ($this->checkAttributeIsAllowedForExport($seed, $attribute)) {
+                    $attributeList[] = $attribute;
+                }
+            }
+            foreach ($this->exportAdditionalAttributeList as $attribute) {
+                $attributeList[] = $attribute;
+            }
+        }
+
+        if (method_exists($exportObj, 'addAdditionalAttributes')) {
+            $exportObj->addAdditionalAttributes($this->entityType, $attributeList, $fieldList);
+        }
+
+        foreach ($collection as $entity) {
+            if (is_null($attributeList)) {
+
+            }
+
+            $this->loadAdditionalFieldsForExport($entity);
+            if (method_exists($exportObj, 'loadAdditionalFields')) {
+                $exportObj->loadAdditionalFields($entity, $fieldList);
+            }
+            $row = array();
+
+            foreach ($attributeList as $attribute) {
+                $value = $this->getAttributeFromEntityForExport($entity, $attribute);
+                $row[$attribute] = $value;
+            }
+            $arr[] = $row;
+
+
+        }
+       // echo "<pre> hello ";print_r($arr);
+        foreach($arr as $c_data){
+
+          $contact = array(
+          'phone' => $c_data['phoneNumber'], 
+          'first_name'=>$c_data['firstName'], 
+          'last_name'=>$c_data['lastName'], 
+          'email'=> $c_data['emailAddress']
+          );
+          $arguments = array('contact'=>$contact, 'contact_group_id'=> $json_data['group_id']);
+          $result  = $this->broadcast_api('Contact_Create', $arguments);
+          if($result[0] == true) {
+          $contact_id = $result[1];
+          // print_r($contact_id);
+          } else {
+          $errmsg = $result[1];
+          return $errmsg;
+          }
+
+        }
+       return $json_data;
+}
+
+
+
     protected function getAttributeFromEntityForExport(Entity $entity, $field)
     {
         $methodName = 'getAttribute' . ucfirst($field). 'FromEntityForExport';
@@ -1767,5 +1942,70 @@ class Record extends \Espo\Core\Services\Base
             }
         }
     }
+
+
+
+
+      function broadcast_api($method, $arguments = array()) {
+          // update following with proper access info
+     $entityManager = $this->getEntityManager();
+    
+      //$accountList = $entityManager->getRepository('Integration')->limit(0, 10)->find();
+
+      $account  = $entityManager->getEntity('Integration', 'IctBroadcastconfig');
+     //  $data = $this->get('data');
+      $settings = $account->get('data');
+      $token    = $settings->apiKey;
+      $ipadrs   = $settings->links;
+
+
+      $url = ($ipadrs!=''  ? $ipadrs : 'http://202.142.186.26/rest'); // returns true
+      $barer = ($token!=''  ? $token : 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOm51bGwsImF1ZCI6IklDVEJyb2FkY2FzdCBBUEkgQ2xpZW50cyIsImlhdCI6MTUxMjQ0Nzg3NywibmJmIjoxNTEyNDQ3ODc3LCJleHAiOjE1NzQ2NTU4NzcsInVzZXJfaWQiOiIzIn0.e4LxMrp9gBf5_j2Mreklh3V7UeeBALiAKjuTQQuOzwmki7qcuis9jKhR1q42o1oHj65S5zS5eYOzdijSekEDs7zcXHQaPX8TGPvHiC71YeezRXLds68IZuuZeiwsPr_NJYXGEhP60CM8YF-nLovY_9zjdZf_DudbyjmSbS4biqI'); // returns true
+      //echo "<pre>adeeel";echo $token;echo   $ipadrs ;
+     // exit;
+
+
+
+
+
+
+
+          $api_username = 'zuha';    // <=== Username at ICTBroadcast
+          $api_password = 'godisone';  // <=== Password at ICTBroadcast
+      //    $service_url  = 'http://202.142.186.26/rest'; // <=== URL for ICTBroadcast REST APIs
+
+       $service_url   = $url;
+
+        $post_data    = array();
+         /* $post_data    = array(
+        'api_username' => $api_username,
+        'api_password' => $api_password
+          );*/
+          $api_url = "$service_url/$method";
+          $curl = curl_init($api_url);
+          curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+          curl_setopt($curl, CURLOPT_POST, true);
+
+          foreach($arguments as $key => $value) {
+        if(is_array($value)){
+          $post_data[$key] = json_encode($value);
+        } else {
+          $post_data[$key] = $value;
+        }
+          }
+          curl_setopt($curl, CURLOPT_POSTFIELDS, $post_data);
+          curl_setopt($curl, CURLOPT_HTTPHEADER, array('Authorization: Bearer '.$barer));
+
+
+          curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+
+
+          // enable following line in case, having trouble with certificate validation
+          // curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+          $curl_response = curl_exec($curl);
+          curl_close($curl);
+          return json_decode($curl_response);  
+
+        }
 }
 

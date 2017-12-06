@@ -270,6 +270,61 @@ class Record extends Base
             'id' => $this->getRecordService()->export($params)
         );
     }
+    
+    
+     public function actionIctbroadcast($params, $data, $request)
+    {
+
+         if (!$request->isPost()) {
+            throw new BadRequest();
+        }
+
+        if ($this->getConfig()->get('exportDisabled') && !$this->getUser()->isAdmin()) {
+            throw new Forbidden();
+        }
+
+        if (!$this->getAcl()->check($this->name, 'read')) {
+            throw new Forbidden();
+        }
+
+        $ids = isset($data['ids']) ? $data['ids'] : null;
+        $where = isset($data['where']) ? json_decode(json_encode($data['where']), true) : null;
+        $byWhere = isset($data['byWhere']) ? $data['byWhere'] : false;
+        $selectData = isset($data['selectData']) ? json_decode(json_encode($data['selectData']), true) : null;
+   
+        $params = array();
+        if ($byWhere) {
+            $params['selectData'] = $selectData;
+            $params['where'] = $where;
+        } else {
+            $params['ids'] = $ids;
+        }
+
+        if (isset($data['attributeList'])) {
+            $params['attributeList'] = $data['attributeList'];
+        }
+
+        if (isset($data['fieldList'])) {
+            $params['fieldList'] = $data['fieldList'];
+        }
+
+        if (isset($data['format'])) {
+            $params['format'] = $data['format'];
+        }
+        if (isset($data['group'])) {
+            $params['group'] = $data['group'];
+        }
+        if (isset($data['campaign_type'])) {
+            $params['campaign_type'] = $data['campaign_type'];
+        }
+
+ //echo "<pre>selected data";print_r($params);
+    
+        return array(
+            'id' => $this->getRecordService()->ictbroadcast($params)
+        );
+        
+    }
 
     public function actionMassUpdate($params, $data, $request)
     {
