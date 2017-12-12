@@ -27,8 +27,7 @@
  ************************************************************************/
 
 Espo.define('views/ictbroadcast/modals/ictbroadcast', ['views/modal', 'model'], function (Dep, Model) {
-  
- 
+  //zzz
 
     return Dep.extend({
 

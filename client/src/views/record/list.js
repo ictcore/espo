@@ -27,7 +27,7 @@
  ************************************************************************/
 
 Espo.define('views/record/list', 'view', function (Dep) {
-
+//ddd
     return Dep.extend({
 
         template: 'record/list',

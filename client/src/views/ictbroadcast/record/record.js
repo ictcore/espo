@@ -27,7 +27,7 @@
  ************************************************************************/
 
 Espo.define('views/ictbroadcast/record/record', 'views/record/base', function (Dep) {
-
+///cccc
     return Dep.extend({
 
         template: 'ictbroadcast/record/record',
