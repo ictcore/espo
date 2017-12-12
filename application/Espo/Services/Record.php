@@ -1453,6 +1453,8 @@ class Record extends \Espo\Core\Services\Base
 
 public function ictbroadcast(array $params)
 {
+
+
     if (array_key_exists('collection', $params)) {
         $collection = $params['collection'];
     } else {
@@ -1491,12 +1493,10 @@ public function ictbroadcast(array $params)
         $collection = $this->getRepository()->find($selectParams);
     }
           $entityManager = $this->getEntityManager();
-    
-            $account  = $entityManager->getEntity('Integration', 'IctBroadcastconfig');
-     //  $data = $this->get('data');
-      $settings = $account->get('data');
-      $token    = $settings->apiKey;
-      $ipadrs   = $settings->links;
+          $account  = $entityManager->getEntity('Integration', 'IctBroadcastconfig');
+          $settings = $account->get('data');
+          $token    = $settings->apiKey;
+          $ipadrs   = $settings->links;
 
 
 
@@ -1504,7 +1504,7 @@ public function ictbroadcast(array $params)
 
         $lnk = parse_url($ipadrs);
      
-        $json_data['ipaddre'] =  $lnk['scheme'].'://'.$lnk['host'];
+       // $json_data['ipaddre'] =  $lnk['scheme'].'://'.$lnk['host'];
         //Creat Group in IctBroadcast
         $arguments = array('contact_group'=> array('name' => $params['format'][0]));
         $result  = $this->broadcast_api('Contact_Group_Create', $arguments);
@@ -1597,7 +1597,7 @@ public function ictbroadcast(array $params)
 
 
         }
-       // echo "<pre> hello ";print_r($arr);
+      //  echo "<pre> hello ";print_r($arr);
         foreach($arr as $c_data){
 
           $contact = array(
@@ -1617,7 +1617,56 @@ public function ictbroadcast(array $params)
           }
 
         }
-       return $json_data;
+       $campaing_type = $params['format'][1];
+
+      $recording_id = $params['format'][3];
+     if($campaing_type=='voice'){
+
+            $method_campaign =  'Campaign_Create';
+
+        }elseif($campaing_type=='fax'){
+
+            $method_campaign =  'Campaign_Fax_Create';
+
+        }elseif($campaing_type == 'voice_interactive'){
+
+
+            $method_campaign =  'Campaign_Interactive_Create';
+        }
+       
+        if($campaing_type == 'voice' || $campaing_type=='fax'){
+
+                $campaign = array(
+                'contact_group_id'  => $contact_group_id,     //  contact_group_id
+                'message'           => $recording_id,     //  recording_id
+                );
+        }
+        if($campaing_type =='voice_interactive'){
+
+         $campaign = array(
+            'contact_group_id'  => $contact_group_id,     //  contact_group_id
+            'message'           => $recording_id,     //  recording_id
+            'extension_key'     => '1',     // any value from 0 to 7 
+            'extension_id'      => $params['format'][2],     // extension_id 
+            );
+
+        }
+        $arguments = array('campaign'=>$campaign);
+        $result =  $this->broadcast_api($method_campaign , $arguments);
+
+        if($result[0] == true) {
+
+            $campaign_id = $result[1];
+        }
+        $arguments = array('campaign_id'=>$campaign_id);
+        $result = $this->broadcast_api('Campaign_Start', $arguments);
+     //print_r($result[1]);
+
+
+
+
+           // print_r($campaign_id);
+           return $json_data;
 }
 
 

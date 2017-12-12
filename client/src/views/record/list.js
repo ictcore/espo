@@ -378,9 +378,6 @@ Espo.define('views/record/list', 'view', function (Dep) {
 
         ictbroadcast: function (data, url, fieldList) {
             //alert('hello');
-
-
-
             if (!data) {
                 data = {};
                 if (this.allResultIsChecked) {
@@ -422,7 +419,7 @@ Espo.define('views/record/list', 'view', function (Dep) {
                     this.ajaxPostRequest(url, data).then(function (data) {
                        // alert(JSON.stringify(data));
                         if ('id' in data) {
-                            var g_id = JSON.stringify(data.id.group_id);
+                           /* var g_id = JSON.stringify(data.id.group_id);
                             var ipaddress = JSON.stringify(data.id.ipaddre);
                             var c_name = JSON.stringify(data.id.campaign_type);
                              var  element= c_name.replace (/"/g,'');
@@ -431,7 +428,7 @@ Espo.define('views/record/list', 'view', function (Dep) {
                     var win=window.open(address+"/campaign.php?action=add&type="+element+"&contact_group_id="+g_id, '_blank');
 
                     // var win=window.open("http://202.142.186.26/campaign.php?action=add&type="+element+"&contact_group_id="+g_id, '_blank');
-                      win.focus();
+                      win.focus();*/
                               
                            // window.location = this.getBasePath() + '?entryPoint=download&id=' + data.id;
                           // alert(this.getBasePath() );
@@ -1403,3 +1400,4 @@ massActionIctbroadcast: function () {
         }
     });
 });
+

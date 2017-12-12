@@ -93,7 +93,7 @@ Espo.define('views/ictbroadcast/record/record', 'views/record/base', function (D
             });*/
 	 
 	 
-	  this.createField('group', 'views/fields/enum', {
+	 /* this.createField('group', 'views/fields/enum', {
                 required: true,
                 translatedOptions: translatedOptions,
             });
@@ -102,7 +102,14 @@ Espo.define('views/ictbroadcast/record/record', 'views/record/base', function (D
                 translatedOptions: translatedOptions,
 		// options: campaign_type
             });
- 
+ */
+	   
+	   /* this.createField('media', 'views/fields/attachment-multiple', {
+                required: true,
+                translatedOptions: translatedOptions,
+		// options: campaign_type
+            });*/
+	    
             this.controlAllFields();
             this.listenTo(this.model, 'change:exportAllFields', function () {
                 this.controlAllFields();

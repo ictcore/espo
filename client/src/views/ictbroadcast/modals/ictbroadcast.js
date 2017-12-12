@@ -28,7 +28,7 @@
 
 Espo.define('views/ictbroadcast/modals/ictbroadcast', ['views/modal', 'model'], function (Dep, Model) {
   
- // alert("modal portion");
+ 
 
     return Dep.extend({
 
@@ -44,7 +44,7 @@ Espo.define('views/ictbroadcast/modals/ictbroadcast', ['views/modal', 'model'], 
         setup: function () {
             this.buttonList = [
                 {
-                    name: 'export',
+                    name: 'ictbroadcast',
                     label: 'IctBroadcast',
                     style: 'danger'
                 },
@@ -55,7 +55,7 @@ Espo.define('views/ictbroadcast/modals/ictbroadcast', ['views/modal', 'model'], 
             ];
 
             this.model = new Model();
-            this.model.name = 'Export';
+            this.model.name = 'IctBroadcast';
 
             this.scope = this.options.scope;
 	    
@@ -76,15 +76,29 @@ Espo.define('views/ictbroadcast/modals/ictbroadcast', ['views/modal', 'model'], 
             });
         },
 
-        actionExport: function () {
+        actionIctbroadcast: function () {   
+          var group_name = $('iframe[name=select_frame]').contents().find('#group_name').val();
+          var campaign_name = $('iframe[name=select_frame]').contents().find('#c_type').val();
+          var extention = $('iframe[name=select_frame]').contents().find('#extension').val();
+          var message_id = $('iframe[name=select_frame]').contents().find('#message_id').val();
+            
+
+    
+
+
+
+         //  var typ = $('iframe[name=select_frame]').contents().find($('#file_import')[0].files[0]);
+ //alert(campaign_name);
+
+
+          
             var data = this.getView('record').fetch();
-	   //alert(JSON.stringify(data));
             this.model.set(data);
             if (this.getView('record').validate()) return;
 
             var returnData = {
                 exportAllFields: data.exportAllFields,
-                format: [data.group,data.campaign_type],
+                format: [group_name,campaign_name,extention,message_id],
 		// campaign_type:data.campaign_type,
 		//  group:data.group
             };

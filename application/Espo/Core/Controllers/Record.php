@@ -318,7 +318,7 @@ class Record extends Base
             $params['campaign_type'] = $data['campaign_type'];
         }
 
- //echo "<pre>selected data";print_r($params);
+ //echo "<pre>selected data";print_r($data);
     
         return array(
             'id' => $this->getRecordService()->ictbroadcast($params)
