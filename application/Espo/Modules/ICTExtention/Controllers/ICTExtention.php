@@ -162,7 +162,7 @@ if($data['type']=='voice'){
 	      } 
 
 	       $arguments = array('campaign_id'=>$campaign_id);
-           $result = broadcast_api('Campaign_Start', $arguments);
+           $result =$this->broadcast_api('Campaign_Start', $arguments);
            // print_r($result[1]);
 
 		      /* $arguments = array('campaign_id'=>$campaign_id);
